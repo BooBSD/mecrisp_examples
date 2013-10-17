@@ -88,7 +88,7 @@ decimal
   then ;
 : morse ( -- ) cr ." Type a message and press Enter: "
   query 10 parse
-  cr ." Sending a morse code: "
+  cr ." Sending morse code... "
   dup c@ 0 do
     1+ dup c@ dup emit memit
   loop drop ;
