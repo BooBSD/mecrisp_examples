@@ -1,11 +1,13 @@
 \ MSP430 version
-\ basis definitions needed
+\ Basis definitions needed!
 
 compiletoflash
 
-100 constant delay	\ in ms
+250 constant delay	\ in ms
 
-: nc ( name ) ( n1 n2 n3...nn n -- ) <builds dup allot 1+ 1 do here i - cflash! loop does> + c@ ;
+: nc ( name ) ( n1 n2 n3...nn n -- )
+  <builds dup allot 1+ 1 do here i - cflash! loop
+  does> + c@ ;
 
 binary
 
@@ -57,11 +59,11 @@ decimal
 
 10 nc digits
 
-: led-on ( -- ) 1 p1out cbis! ;
-: led-off ( -- ) 1 p1out cbic! ;
+: leds-on ( -- ) 65 p1out cbis! ;
+: leds-off ( -- ) 65 p1out cbic! ;
 
-: dot ( -- ) led-on delay ms led-off delay ms ;
-: dash ( -- ) led-on delay 3 * ms led-off delay ms ;
+: dot ( -- ) leds-on delay ms leds-off delay ms ;
+: dash ( -- ) leds-on delay 3 * ms leds-off delay ms ;
 
 : msend ( mask -- )
   dup 7 and 0 do
@@ -70,7 +72,8 @@ decimal
     else
       dot
     then
-  loop drop delay 2 * ms ;
+  loop drop delay 2 * ms
+;
 : mspace ( char -- ) drop delay 6 * ms ;
 : mdigit ( char -- ) 48 - digits msend ;
 : mletter ( char -- ) 65 - letters msend ;
@@ -83,14 +86,21 @@ decimal
     else
       32 bic dup 64 > over 91 < and if
         mletter
+      else
+        drop
       then
     then
-  then ;
+  then
+;
+: mtype ( cstr-addr -- )
+  dup c@ 0 do
+    1+ dup c@ dup emit memit
+  loop drop
+;
 : morse ( -- ) cr ." Type a message and press Enter: "
   query 10 parse
   cr ." Sending morse code... "
-  dup c@ 0 do
-    1+ dup c@ dup emit memit
-  loop drop ;
+  mtype
+;
 
 compiletoram
